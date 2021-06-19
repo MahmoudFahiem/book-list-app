@@ -40,11 +40,11 @@ UI.prototype.clearFields = function() {
     UIbookIsbn.value = '';
 }
 
-UI.prototype.showAlert = function(message, className) {
-    var alert = document.querySelector(`.alert.${className}`);
-    if(!alert) {
+UI.prototype.showAlert = function(message, className, type) {
+    var alert = document.querySelector(`.alert.${className}.${type}`);
+    if (!alert) {
         var alertTemp = `
-            <p class="alert ${className}">${message}</p> 
+            <p class="alert ${className} ${type}">${message}</p> 
         `;
         UIbookForm.insertAdjacentHTML('afterbegin', alertTemp);
         this.hideAlert();
@@ -70,11 +70,11 @@ UIbookForm.addEventListener('submit', function(e) {
 
     console.log(bookAuthor);
     if(bookTitle == '' || bookAuthor == '' || bookIsbn == '') {
-        ui.showAlert('Please fill in all fields', 'error');
+        ui.showAlert('Please fill in all fields', 'error', 'fill-fields');
     } else {
         var book = new Book(bookTitle, bookAuthor, bookIsbn);
         ui.addBookToList(book);
-        ui.showAlert('Book Item added', 'success');
+        ui.showAlert('Book Item added', 'success', 'book-added');
         ui.clearFields();
     }
 })
@@ -85,6 +85,6 @@ UIbookList.addEventListener('click', function(e) {
     if(clickedEl.id == 'delete') {
         var bookItem = clickedEl.parentElement.parentElement;
         ui.removeBookItem(bookItem);
-        ui.showAlert('Book Item Removed', 'success');
+        ui.showAlert('Book Item Removed', 'success', 'book-removed');
     }
 })
