@@ -23,11 +23,17 @@ UI.prototype.addBookToList = function(book) {
           <td>${book.title}</td>
           <td>${book.auhor}</td>
           <td>${book.isbn}</td>
-          <td><button id="delete-book">X</button</td>
+          <td><a href="#" id="delete">X</a></td>
         </tr>
     `;
 
     UIbookList.insertAdjacentHTML('beforeend',rowTemp);
+}
+
+UI.prototype.clearFields = function() {
+    UIbookTitle.value = '';
+    UIbookAuthor.value = '';
+    UIbookIsbn.value = '';
 }
 
 // Event Listners
@@ -39,9 +45,16 @@ UIbookForm.addEventListener('submit', function(e) {
         bookIsbn = UIbookIsbn.value;
     
     var book = new Book(bookTitle, bookAuthor, bookIsbn);
-
     var ui = new UI();
 
     ui.addBookToList(book);
+    ui.clearFields();
+})
 
+UIbookList.addEventListener('click', function(e) {
+    e.preventDefault();
+    const clickedEl = e.target;
+    if(clickedEl.id == 'delete') {
+        clickedEl.parentElement.parentElement.remove();
+    }
 })
