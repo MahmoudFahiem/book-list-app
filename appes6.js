@@ -5,7 +5,7 @@ const UIbookAuthor = document.querySelector('#author');
 const UIbookIsbn = document.querySelector('#isbn');
 const UIbookList = document.querySelector('#book-list');
 
-// Book varructor
+// Book Constructor
 
 class Book {
     constructor(title, author, isbn) {
@@ -15,12 +15,10 @@ class Book {
     }
 }
 
-// UI varructor
+// UI Constructor
 
 class UI {
-    constructor() {}
-
-    addBookToList(book) {
+    static addBookToList(book) {
         const rowTemp = `
             <tr>
             <td>${book.title}</td>
@@ -33,19 +31,18 @@ class UI {
         UIbookList.insertAdjacentHTML('beforeend', rowTemp);
     }
 
-    removeBookItem(book) {
+    static removeBookItem(book) {
         book.remove();
     }
 
-    clearFields() {
+    static clearFields() {
         UIbookTitle.value = '';
         UIbookAuthor.value = '';
         UIbookIsbn.value = '';
     }
 
-    showAlert(message, className, type) {
+    static showAlert(message, className, type) {
         const alert = document.querySelector(`.alert.${className}.${type}`);
-        console.log(alert);
         if (!alert) {
             const alertTemp = `
                 <p class="alert ${className} ${type}">${message}</p> 
@@ -55,7 +52,7 @@ class UI {
         }
     }
 
-    hideAlert() {
+    static hideAlert() {
         const alert = document.querySelector('.alert');
         setTimeout(function () {
             alert.remove();
@@ -63,9 +60,60 @@ class UI {
     }
 };
 
-const ui = new UI();
+// Local Storage Constructor
+
+class Store {
+    static getBooks() {
+        let books;
+        if (localStorage.getItem('books') === null) {
+            books = [];
+        } else {
+            books = JSON.parse(localStorage.getItem('books'));
+        }
+
+        return books;
+    }
+
+    static displayBooks() {
+        const books = Store.getBooks();
+        books.forEach(function (book) {
+            UI.addBookToList(book);
+        });
+    }
+
+    static updateLocalStorage(books) {
+        localStorage.setItem('books', JSON.stringify(books));
+    }
+
+    static addBook(book) {
+        const books = Store.getBooks();
+        books.push(book);
+        Store.updateLocalStorage(books);
+    }
+
+    static removeBook(bookIsbn) {
+        const books = Store.getBooks();
+
+        // books.forEach(function(book, index) {
+        //     if(book.isbn === isbn) {
+        //         books.splice(index, 1);
+        //     }
+        // })
+
+        const newBooks = books.filter(function(book) {
+            return book.isbn !== bookIsbn;
+        })
+
+        Store.updateLocalStorage(newBooks);
+    }
+}
+
 
 // Event Listners
+
+document.addEventListener('DOMContentLoaded', function() {
+    Store.displayBooks();
+})
 
 UIbookForm.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -74,12 +122,13 @@ UIbookForm.addEventListener('submit', function (e) {
             bookIsbn = UIbookIsbn.value;
 
     if (bookTitle == '' || bookAuthor == '' || bookIsbn == '') {
-        ui.showAlert('Please fill in all fields', 'error', 'fill-fields');
+        UI.showAlert('Please fill in all fields', 'error', 'fill-fields');
     } else {
         const book = new Book(bookTitle, bookAuthor, bookIsbn);
-        ui.addBookToList(book);
-        ui.showAlert('Book Item added', 'success', 'book-added');
-        ui.clearFields();
+        UI.addBookToList(book);
+        Store.addBook(book);
+        UI.showAlert('Book Item added', 'success', 'book-added');
+        UI.clearFields();
     }
 })
 
@@ -87,8 +136,10 @@ UIbookList.addEventListener('click', function (e) {
     e.preventDefault();
     const clickedEl = e.target;
     if (clickedEl.id == 'delete') {
+        const bookIsbn = clickedEl.parentElement.previousElementSibling.textContent;
         const bookItem = clickedEl.parentElement.parentElement;
-        ui.removeBookItem(bookItem);
-        ui.showAlert('Book Item Removed', 'success', 'book-removed');
+        UI.removeBookItem(bookItem);
+        Store.removeBook(bookIsbn);
+        UI.showAlert('Book Item Removed', 'success', 'book-removed');
     }
 })
