@@ -1,5 +1,5 @@
 # Book List App
-An OOP book list app as a part of Udemy - Modern JavaScript From The Beginning Course project
+An OOP book list app as a part of Udemy - Modern JavaScript From The Beginning Course project https://mahmoudfahiem.github.io/book-list-app/
 
 ## Dependencies
 1. Skeleton
